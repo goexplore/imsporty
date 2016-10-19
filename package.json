@@ -1,0 +1,9 @@
+{
+    "name": "sportyapp",
+    "version": "0.0.1",
+    "description": "a small app for sportiness",
+    "dependencies": {
+        "botbuilder": "^3.3.2",
+        "restify": "^4.1.1"
+    }
+}
