@@ -128,6 +128,7 @@ function fixturesHandler(fixtures) {
     fixtures.forEach(function (fixture) {
         if (fixture !== undefined) {
             str += fixture.homeTeamName + ' - ' + fixture.awayTeamName + '\n\n';
+            str += fixture.result.goalsHomeTeam + ' - ' + fixture.result.goalsAwayTeam + '\n\n';
         }
     });
 
