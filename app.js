@@ -57,7 +57,25 @@ dialog.matches('ShowFixtures', [
                 session.send(err);
             });
         } else {
-            session.send('will show fixtures for %s', sporty.league);
+
+            http.get({
+                host: 'api.football-data.org',
+                path: '/v1/competitions/426/fixtures?matchday=9'
+            }, function (response) {
+                // Continuously update stream with data
+                var body = '';
+                response.on('data', function (d) {
+                    body += d;
+                });
+                response.on('end', function () {
+
+                    // Data reception is done, do whatever with it!
+                    var parsed = JSON.parse(body);
+                    bot.send(createMessage(session,
+                        createCard('Fixtures', 'Premier League', fixturesHandler(parsed.fixtures))));
+                });
+            });
+            //session.send('will show fixtures for %s', sporty.league);
         }
     }
 ]);
@@ -104,3 +122,15 @@ function createSportyEntity(entities) {
 
     return sporty;
 }
+
+function fixturesHandler(fixtures) {
+    var str = '';
+    fixtures.forEach(function (fixture) {
+        if (fixture !== undefined) {
+            str += fixture.homeTeamName + ' - ' + fixture.awayTeamName + '\n\n';
+        }
+    });
+
+    return str;
+}
+
