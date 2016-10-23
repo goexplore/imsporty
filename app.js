@@ -1,6 +1,7 @@
 var restify = require('restify');
 var builder = require('botbuilder');
 var http = require('http');
+var sportyBot = require('./sportybot.js');
 
 //=========================================================
 // Bot Setup
@@ -30,11 +31,11 @@ bot.dialog('/', dialog);
 
 dialog.matches('ShowResults', [
     function (session, args) {
-        var sporty = createSportyEntity(args.entities);
+        var sporty = sportyBot.createSportyEntity(builder, args.entities);
 
         if (sporty.dateTime) {
-            var msg = createMessage(session,
-                createCard(sporty.league, 'show results', 'Will show results for ' + sporty.league + ' in the period ' + sporty.dateTime));
+            var msg = sportyBot.createMessage(builder, session,
+                sportyBot.createCard(builder, sporty.league, 'show results', 'Will show results for ' + sporty.league + ' in the period ' + sporty.dateTime));
 
             bot.send(msg, function (err) {
                 session.send(err);
@@ -47,11 +48,11 @@ dialog.matches('ShowResults', [
 
 dialog.matches('ShowFixtures', [
     function (session, args) {
-        var sporty = createSportyEntity(args.entities);
+        var sporty = sportyBot.createSportyEntity(builder, args.entities);
 
         if (sporty.dateTime) {
-            var msg = createMessage(session,
-                createCard(sporty.league, 'show fixtures', 'Will show fixtures for ' + sporty.league + ' in the period ' + sporty.dateTime));
+            var msg = sportyBot.createMessage(builder, session,
+                sportyBot.createCard(builder, sporty.league, 'show fixtures', 'Will show fixtures for ' + sporty.league + ' in the period ' + sporty.dateTime));
 
             bot.send(msg, function (err) {
                 session.send(err);
@@ -71,8 +72,8 @@ dialog.matches('ShowFixtures', [
 
                     // Data reception is done, do whatever with it!
                     var parsed = JSON.parse(body);
-                    bot.send(createMessage(session,
-                        createCard('Fixtures', 'Premier League', fixturesHandler(parsed.fixtures))));
+                    bot.send(sportyBot.createMessage(builder, session,
+                        sportyBot.createCard(builder, 'Fixtures', 'Premier League', fixturesHandler(parsed.fixtures))));
                 });
             });
             //session.send('will show fixtures for %s', sporty.league);
@@ -82,11 +83,11 @@ dialog.matches('ShowFixtures', [
 
 dialog.matches('ShowStandings', [
     function (session, args) {
-        var sporty = createSportyEntity(args.entities);
+        var sporty = sportyBot.createSportyEntity(builder, args.entities);
 
         if (sporty.dateTime) {
-            var msg = createMessage(session,
-                createCard(sporty.league, 'show standings', 'Will show standings for ' + sporty.league + ' in the period ' + sporty.dateTime));
+            var msg = sportyBot.createMessage(builder, session,
+                sportyBot.createCard(builder, sporty.league, 'show standings', 'Will show standings for ' + sporty.league + ' in the period ' + sporty.dateTime));
 
             bot.send(msg, function (err) {
                 session.send(err);
@@ -98,40 +99,4 @@ dialog.matches('ShowStandings', [
 ]);
 
 dialog.onDefault(builder.DialogAction.send("I'm sorry I didn't understand."));
-
-function createMessage(session, card) {
-    return new builder.Message()
-        .address(session.message.address)
-        .attachments([card]);
-}
-
-function createCard(title, subtitle, text) {
-    return new builder.ThumbnailCard()
-        .title(title)
-        .subtitle(subtitle)
-        .text(text);
-}
-
-function createSportyEntity(entities) {
-    var sporty = {}
-
-    var league = builder.EntityRecognizer.findEntity(entities, 'League');
-    sporty.league = league ? league.entity : undefined;
-    var dateTime = builder.EntityRecognizer.findEntity(entities, 'builtin.datetime.date');
-    sporty.dateTime = dateTime ? dateTime.resolution.date : undefined;
-
-    return sporty;
-}
-
-function fixturesHandler(fixtures) {
-    var str = '';
-    fixtures.forEach(function (fixture) {
-        if (fixture !== undefined) {
-            str += fixture.homeTeamName + ' - ' + fixture.awayTeamName + '\n\n';
-            str += fixture.result.goalsHomeTeam + ' - ' + fixture.result.goalsAwayTeam + '\n\n';
-        }
-    });
-
-    return str;
-}
 
