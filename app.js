@@ -69,11 +69,11 @@ dialog.matches('ShowFixtures', [
                     body += d;
                 });
                 response.on('end', function () {
-
+                            
                     // Data reception is done, do whatever with it!
                     var parsed = JSON.parse(body);
                     bot.send(sportyBot.createMessage(builder, session,
-                        sportyBot.createCard(builder, 'Fixtures', 'Premier League', fixturesHandler(parsed.fixtures))));
+                        sportyBot.createCard(builder, 'Fixtures', 'Premier League', sportyBot.fixturesHandler(parsed.fixtures))));
                 });
             });
             //session.send('will show fixtures for %s', sporty.league);
